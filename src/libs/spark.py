@@ -5,18 +5,16 @@ spark.py
 Module containing helper function for use with Apache Spark
 """
 
-import __main__
-
 from os import environ, listdir, path
 import json
 from pyspark import SparkFiles
 from pyspark.sql import SparkSession
 
-from dependencies import logging
+from libs import logging
 
 
-def start_spark(app_name='my_spark_app', master='local[*]', jar_packages=[],
-                files=[], spark_config={}):
+def start_spark(app_name='my_spark_app', master='local[*]', jar_packages=None,
+                files=None, spark_config=None):
     """Start Spark session, get Spark logger and load config files.
 
     Start a Spark session on the worker node and register the Spark
@@ -56,22 +54,27 @@ def start_spark(app_name='my_spark_app', master='local[*]', jar_packages=[],
     """
 
     # detect execution environment
-    flag_repl = not(hasattr(__main__, '__file__'))
+    if files is None:
+        files = []
+    if jar_packages is None:
+        jar_packages = []
+    if spark_config is None:
+        spark_config = dict()
     flag_debug = 'DEBUG' in environ.keys()
 
-    if not (flag_repl or flag_debug):
+    if not flag_debug:
         # get Spark session factory
         spark_builder = (
             SparkSession
-            .builder
-            .appName(app_name))
+                .builder
+                .appName(app_name).enableHiveSupport())
     else:
         # get Spark session factory
         spark_builder = (
             SparkSession
-            .builder
-            .master(master)
-            .appName(app_name))
+                .builder
+                .master(master)
+                .appName(app_name).enableHiveSupport())
 
         # create Spark JAR packages string
         spark_jars_packages = ','.join(list(jar_packages))
@@ -86,21 +89,23 @@ def start_spark(app_name='my_spark_app', master='local[*]', jar_packages=[],
 
     # create session and retrieve Spark logger object
     spark_sess = spark_builder.getOrCreate()
+    spark_sess.sparkContext.setLogLevel('WARN')
     spark_logger = logging.Log4j(spark_sess)
 
     # get config file if sent to cluster with --files
     spark_files_dir = SparkFiles.getRootDirectory()
     config_files = [filename
                     for filename in listdir(spark_files_dir)
-                    if filename.endswith('config.json')]
-
+                    if filename.endswith('_job.json')]
+    config_dict = {
+        "job_name": app_name
+    }
     if config_files:
-        path_to_config_file = path.join(spark_files_dir, config_files[0])
+        path_to_config_file = path.join(spark_files_dir, config_files[config_files.index('{}.json'.format(app_name))])
         with open(path_to_config_file, 'r') as config_file:
-            config_dict = json.load(config_file)
+            config_dict['params'] = json.load(config_file)
         spark_logger.warn('loaded config from ' + config_files[0])
     else:
         spark_logger.warn('no config file found')
-        config_dict = None
 
     return spark_sess, spark_logger, config_dict

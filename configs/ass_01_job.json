@@ -1,0 +1,4 @@
+{
+  "in_path": "tests/test_data/ass_01.csv",
+  "out_path": "/tmp/result"
+}

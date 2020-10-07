@@ -43,7 +43,8 @@ then
     
     # add local modules
     echo '... adding all modules from local utils package'
-    zip -ru9 packages.zip dependencies -x dependencies/__pycache__/\*
+    cd src
+    zip -ru9 ../packages.zip jobs libs -x jobs/__pycache__/\* -x libs/__pycache__/\*
 
     exit 0
 else

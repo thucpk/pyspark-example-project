@@ -5,6 +5,7 @@ logging
 This module contains a class that wraps the log4j object instantiated
 by the active SparkContext, enabling Log4j logging for PySpark using.
 """
+from pyspark.sql.session import SparkSession
 
 
 class Log4j(object):
@@ -13,7 +14,7 @@ class Log4j(object):
     :param spark: SparkSession object.
     """
 
-    def __init__(self, spark):
+    def __init__(self, spark: SparkSession):
         # get spark app details with which to prefix all messages
         conf = spark.sparkContext.getConf()
         app_id = conf.get('spark.app.id')
