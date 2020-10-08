@@ -6,5 +6,5 @@
   "out_dir": "/tmp/{0}/%Y-%m-%d",
   "in_file_template": "%H%M%S.csv",
   "out_file_template": "%H%M%S.csv",
-  "log_types": ["call_histories", ]
+  "log_types": ["call_histories"]
 }
