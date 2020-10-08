@@ -1,0 +1,10 @@
+{
+  "ftp_host": "ftp.dlptest.com",
+  "ftp_user": "dlpuser@dlptest.com",
+  "ftp_password": "eUj8GeW55SvYaswqUyDSm5v6N",
+  "in_dir": "data/{0}/%Y-%m-%d",
+  "out_dir": "/tmp/{0}/%Y-%m-%d",
+  "in_file_template": "%H%M%S.csv",
+  "out_file_template": "%H%M%S.csv",
+  "log_types": ["call_histories", ]
+}
